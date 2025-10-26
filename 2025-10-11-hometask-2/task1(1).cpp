@@ -1,26 +1,41 @@
-#include <iostream>
-using namespace std;
+#include <cstdio>
 
-int main() {
+int main()
+{
     int x1 = 0;
     int y1 = 0;
     int x2 = 0;
     int y2 = 0;
-    cin >> x1 >> y1 >> x2 >> y2;
     
-    if (x1 == x2) {
-        if (y2 - y1 == 1) {
-            cout << "YES";
-        }
-        else if (y1 == 2 && y2 == 4) {
-            cout << "YES";
-        }
-        else {
-            cout << "NO";
-        }
+    scanf("%d", &x1);
+    scanf("%d", &y1);
+    scanf("%d", &x2);
+    scanf("%d", &y2);
+    
+    if (y1 == 1) 
+    {
+        printf("NO");
+        return 0;
     }
-    else {
-        cout << "NO";
+
+    if (x1 == x2)
+    {
+        if (y2 == y1 + 1)
+        {  
+            printf("YES");
+        }
+        else if (y1 == 2 && y2 == y1 + 2)
+        {  
+            printf("YES");
+        } 
+        else 
+        {
+            printf("NO");
+        }
+    } 
+    else 
+    {
+        printf("NO");
     }
     
     return 0;
