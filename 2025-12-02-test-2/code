@@ -1,0 +1,154 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct {
+    char* first_name;
+    char* last_name;
+} Author;
+
+typedef struct {
+    char* title;
+    int year;
+    Author* authors;
+    int author_count;
+    int capacity;
+} Book;
+
+typedef struct {
+    Book* books;
+    int book_count;
+} Library;
+
+void initAuthor(Author* author, const char* first_name, const char* last_name) {
+    author->first_name = malloc(strlen(first_name) + 1);
+    strcpy(author->first_name, first_name);
+    
+    author->last_name = malloc(strlen(last_name) + 1);
+    strcpy(author->last_name, last_name);
+}
+
+void printAuthor(const Author* author) {
+    printf("%s %s", author->first_name, author->last_name);
+}
+
+void freeAuthor(Author* author) {
+    free(author->first_name);
+    free(author->last_name);
+}
+
+void initBook(Book* book, const char* title, int year) {
+    book->title = malloc(strlen(title) + 1);
+    strcpy(book->title, title);
+    
+    book->year = year;
+    book->author_count = 0;
+    book->capacity = 2;
+    book->authors = malloc(sizeof(Author) * book->capacity);
+}
+
+void addAuthorToBook(Book* book, const char* first_name, const char* last_name) {
+    if (book->author_count == book->capacity) {
+        book->capacity *= 2;
+        book->authors = realloc(book->authors, sizeof(Author) * book->capacity);
+    }
+    
+    initAuthor(&book->authors[book->author_count], first_name, last_name);
+    book->author_count++;
+}
+
+void printBook(const Book* book) {
+    printf("Книга: \"%s\" (%d г.)\n", book->title, book->year);
+    printf("Авторы (%d): ", book->author_count);
+    
+    for (int i = 0; i < book->author_count; i++) {
+        printAuthor(&book->authors[i]);
+        if (i < book->author_count - 1) {
+            printf(", ");
+        }
+    }
+    printf("\n");
+}
+
+void freeBook(Book* book) {
+    free(book->title);
+    
+    for (int i = 0; i < book->author_count; i++) {
+        freeAuthor(&book->authors[i]);
+    }
+    
+    free(book->authors);
+}
+
+void initLibrary(Library* lib, int initial_capacity) {
+    lib->books = malloc(sizeof(Book) * initial_capacity);
+    lib->book_count = 0;
+}
+
+void addBookToLibrary(Library* lib, const char* title, int year) {
+    initBook(&lib->books[lib->book_count], title, year);
+    lib->book_count++;
+}
+
+void printLibrary(const Library* lib) {
+    printf("=== БИБЛИОТЕКА ===\n");
+    printf("Всего книг: %d\n\n", lib->book_count);
+    
+    for (int i = 0; i < lib->book_count; i++) {
+        printf("Книга №%d:\n", i + 1);
+        printBook(&lib->books[i]);
+        printf("\n");
+    }
+}
+
+void findBookWithMostAuthors(const Library* lib) {
+    if (lib->book_count == 0) {
+        printf("Библиотека пуста!\n");
+        return;
+    }
+    
+    int max_index = 0;
+    int max_authors = lib->books[0].author_count;
+    
+    for (int i = 1; i < lib->book_count; i++) {
+        if (lib->books[i].author_count > max_authors) {
+            max_authors = lib->books[i].author_count;
+            max_index = i;
+        }
+    }
+    
+    printf("Книга с наибольшим количеством авторов:\n");
+    printBook(&lib->books[max_index]);
+}
+
+void freeLibrary(Library* lib) {
+    for (int i = 0; i < lib->book_count; i++) {
+        freeBook(&lib->books[i]);
+    }
+    free(lib->books);
+}
+
+int main() {
+    Library library;
+    initLibrary(&library, 10);
+    
+    addBookToLibrary(&library, "Война и мир", 1869);
+    addAuthorToBook(&library.books[0], "Лев", "Толстой");
+    
+    addBookToLibrary(&library, "Сборник научных статей", 2020);
+    addAuthorToBook(&library.books[1], "Иван", "Петров");
+    addAuthorToBook(&library.books[1], "Мария", "Сидорова");
+    addAuthorToBook(&library.books[1], "Алексей", "Иванов");
+    
+    addBookToLibrary(&library, "Приключения Шерлока Холмса", 1892);
+    addAuthorToBook(&library.books[2], "Артур", "Конан Дойл");
+    
+    printLibrary(&library);
+    
+    printf("=== ПОИСК КНИГИ С НАИБОЛЬШИМ КОЛИЧЕСТВОМ АВТОРОВ ===\n");
+    findBookWithMostAuthors(&library);
+    
+    freeLibrary(&library);
+    
+    return 0;
+}
